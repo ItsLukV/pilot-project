@@ -132,6 +132,43 @@ var Skrald = (function (_super) {
     }
     return Skrald;
 }(WaterItems));
+function loadImages() {
+    mySound = loadSound("sketch/assets/Music/bagground.mp3");
+    start1Img.push(loadImage("sketch/assets/Start/start1.png"));
+    start1Img.push(loadImage("sketch/assets/Start/start2.png"));
+    start1Img.push(loadImage("sketch/assets/Start/start0.gif"));
+    start1Img.push(loadImage("sketch/assets/Start/start3.gif"));
+    start1Img.push(loadImage("sketch/assets/Start/start4.gif"));
+    skraldImg.push(loadImage("sketch/assets/Trash/oil barrel.png"));
+    skraldImg.push(loadImage("sketch/assets/Trash/tire.png"));
+    skraldImg.push(loadImage("sketch/assets/Trash/trashbag.png"));
+    skraldImg.push(loadImage("sketch/assets/Trash/straw.png"));
+    skraldImg.push(loadImage("sketch/assets/Trash/plastich bag.png"));
+    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead fish1.png"));
+    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead fish2.png"));
+    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead fish3.png"));
+    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead fish4.png"));
+    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead turtle.png"));
+    var fisk1 = [];
+    fisk1.push(loadImage("sketch/assets/Fisk/Livefish/fish1 animation.gif"));
+    fisk1.push(loadImage("sketch/assets/Fisk/Livefish/fish1 animationflip.gif"));
+    fiskImg.push(fisk1);
+    var fisk2 = [];
+    fisk2.push(loadImage("sketch/assets/Fisk/Livefish/fish2 animation.gif"));
+    fisk2.push(loadImage("sketch/assets/Fisk/Livefish/fish2 animationflip.gif"));
+    fiskImg.push(fisk2);
+    var fisk3 = [];
+    fisk3.push(loadImage("sketch/assets/Fisk/Livefish/fish3 animation.gif"));
+    fisk3.push(loadImage("sketch/assets/Fisk/Livefish/fish3 animationflip.gif"));
+    fiskImg.push(fisk3);
+    var turtle = [];
+    turtle.push(loadImage("sketch/assets/Fisk/Livefish/turtle animation.gif"));
+    turtle.push(loadImage("sketch/assets/Fisk/Livefish/turtle animationflip.gif"));
+    fiskImg.push(turtle);
+    fishermanImg = loadImage("sketch/assets/fisherman.png");
+    krogImg = loadImage("sketch/assets/Hook.gif");
+    backgroundImg = loadImage("sketch/assets/background.png");
+}
 var Knap = (function () {
     function Knap(x, y, w, h, img) {
         this.img = img;
@@ -167,6 +204,54 @@ var Knap = (function () {
     };
     return Knap;
 }());
+var Score = (function () {
+    function Score() {
+        this.highScore = 0;
+        this.score = 0;
+    }
+    Score.prototype.tick = function () {
+        if (this.score > this.highScore)
+            this.highScore = this.score;
+    };
+    Score.prototype.save = function () {
+        localStorage.setItem("Score", JSON.stringify(this.highScore));
+    };
+    Score.prototype.load = function () {
+        var hs = JSON.parse(localStorage.getItem("Score"));
+        if (hs === null)
+            this.highScore = 0;
+        else
+            this.highScore = JSON.parse(localStorage.getItem("Score"));
+    };
+    Score.prototype.show = function () {
+        this.tick();
+        push();
+        textSize(40);
+        this.score = this.countPoints();
+        fill(255, 220);
+        var scoreTxt = "Score: " + this.score;
+        rect(0, 0, textWidth(scoreTxt) + 20, 40 + 10);
+        fill(0);
+        text(scoreTxt, 0 + 10, 40);
+        fill(255, 220);
+        var highTxt = "HighScore: " + this.highScore;
+        rect(width - textWidth(highTxt) - 20, 0, textWidth(highTxt) + 20, 40 + 10);
+        fill(0);
+        text(highTxt, width - textWidth(highTxt) - 10, 40);
+        pop();
+    };
+    Score.prototype.countPoints = function () {
+        var sum = 0;
+        hook.hooked.forEach(function (item) {
+            sum += item.points;
+        });
+        return sum;
+    };
+    return Score;
+}());
+window.addEventListener("unload", function (event) {
+    score.save();
+});
 var offset = -250;
 var fishermanImg;
 var krogImg;
@@ -178,16 +263,17 @@ var fisk = [];
 var fiskImg = [];
 var deadFiskImg = [];
 var deadFisk = [];
-var startImg = [];
-var maxFrame1 = 59;
+var start1Img = [];
+var maxFrame1 = Math.floor(7 * 60);
 var maxFrame2 = 60;
 var maxFrame3 = 60;
 var currentFrame = 0;
+var score;
 var mySound;
 var hookLevel = 400;
-var skraldAntal = 75;
-var fiskAntal = 50;
-var deadAntal = 50;
+var skraldAntal = 50;
+var fiskAntal = 30;
+var deadAntal = 30;
 var hitboxShow = true;
 var playStateList;
 (function (playStateList) {
@@ -195,131 +281,34 @@ var playStateList;
     playStateList[playStateList["play"] = 1] = "play";
     playStateList[playStateList["startLoading"] = 2] = "startLoading";
     playStateList[playStateList["gameLoading"] = 3] = "gameLoading";
-    playStateList[playStateList["revsegameLoading"] = 4] = "revsegameLoading";
 })(playStateList || (playStateList = {}));
 var playState = playStateList.startLoading;
 var knap;
 function preload() {
-    mySound = loadSound("sketch/assets/Music/bagground.mp3");
-    startImg.push(loadImage("sketch/assets/Start/start1.png"));
-    startImg.push(loadImage("sketch/assets/Start/start2.png"));
-    startImg.push(loadImage("sketch/assets/Start/start0.gif"));
-    startImg.push(loadImage("sketch/assets/Start/start3.gif"));
-    startImg.push(loadImage("sketch/assets/Start/start4.gif"));
-    skraldImg.push(loadImage("sketch/assets/Trash/oil barrel.png"));
-    skraldImg.push(loadImage("sketch/assets/Trash/tire.png"));
-    skraldImg.push(loadImage("sketch/assets/Trash/trashbag.png"));
-    skraldImg.push(loadImage("sketch/assets/Trash/straw.png"));
-    skraldImg.push(loadImage("sketch/assets/Trash/plastich bag.png"));
-    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead fish1.png"));
-    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead fish2.png"));
-    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead fish3.png"));
-    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead fish4.png"));
-    deadFiskImg.push(loadImage("sketch/assets/Fisk/Deadfish/dead turtle.png"));
-    var fisk1 = [];
-    fisk1.push(loadImage("sketch/assets/Fisk/Livefish/fish1 animation.gif"));
-    fisk1.push(loadImage("sketch/assets/Fisk/Livefish/fish1 animationflip.gif"));
-    fiskImg.push(fisk1);
-    var fisk2 = [];
-    fisk2.push(loadImage("sketch/assets/Fisk/Livefish/fish2 animation.gif"));
-    fisk2.push(loadImage("sketch/assets/Fisk/Livefish/fish2 animationflip.gif"));
-    fiskImg.push(fisk2);
-    var fisk3 = [];
-    fisk3.push(loadImage("sketch/assets/Fisk/Livefish/fish3 animation.gif"));
-    fisk3.push(loadImage("sketch/assets/Fisk/Livefish/fish3 animationflip.gif"));
-    fiskImg.push(fisk3);
-    var turtle = [];
-    turtle.push(loadImage("sketch/assets/Fisk/Livefish/turtle animation.gif"));
-    turtle.push(loadImage("sketch/assets/Fisk/Livefish/turtle animationflip.gif"));
-    fiskImg.push(turtle);
-    fishermanImg = loadImage("sketch/assets/fisherman.png");
-    krogImg = loadImage("sketch/assets/Hook.gif");
-    backgroundImg = loadImage("sketch/assets/background.png");
+    loadImages();
 }
 function setup() {
     createCanvas(640, 800);
     setupTrash();
+    score = new Score();
+    score.load();
     knap = new Knap(243, 294, 176, 84);
     hook = new Krog(krogImg, 640 / 2, hookLevel);
 }
 function draw() {
-    if (playState === playStateList.startLoading) {
-        image(startImg[playState], 0, 0);
-        if (currentFrame === maxFrame1 - 1) {
-            playState = playStateList.menu;
-            currentFrame = 0;
-            return;
-        }
-        currentFrame++;
+    if (animation())
         return;
-    }
-    if (playState === playStateList.menu) {
-        background(220);
-        image(startImg[knap.bagground()], 0, 0);
-        knap.hover();
-        return;
-    }
-    if (playState === playStateList.gameLoading) {
-        image(startImg[playState], 0, 0);
-        if (currentFrame === maxFrame2) {
-            playState = playStateList.play;
-            currentFrame = 0;
-            return;
-        }
-        currentFrame++;
-        return;
-    }
-    if (playState === playStateList.revsegameLoading) {
-        image(startImg[playState], 0, 0);
-        if (currentFrame === maxFrame3) {
-            playState = playStateList.menu;
-            currentFrame = 0;
-            return;
-        }
-        currentFrame++;
-        return;
-    }
     checkHook();
     image(backgroundImg, 0, 0 + offset);
     image(fishermanImg, 290, 450 + offset);
-    for (var i = 0; i < skrald.length; i++) {
-        skrald[i].tick();
-        skrald[i].show();
-        if (skrald[i].collect(hook)) {
-            hook.addHook(skrald[i]);
-            skrald.splice(i, 1);
-        }
-    }
-    for (var i = 0; i < fisk.length; i++) {
-        fisk[i].tick();
-        fisk[i].move();
-        fisk[i].show();
-        if (fisk[i].collect(hook)) {
-            hook.addHook(fisk[i]);
-            fisk.splice(i, 1);
-        }
-    }
-    for (var i = 0; i < deadFisk.length; i++) {
-        deadFisk[i].tick();
-        deadFisk[i].show();
-        if (deadFisk[i].collect(hook)) {
-            hook.addHook(deadFisk[i]);
-            deadFisk.splice(i, 1);
-        }
-    }
-    console.log(offset);
+    waterItemsTick();
     hook.tick();
     hook.show();
     for (var i = 0; i < hook.hooked.length; i++) {
         hook.hooked[i].tick();
         hook.hooked[i].show();
     }
-    push();
-    textSize(75);
-    var txt = countPoints();
-    rect(300 - textWidth("" + txt) / 2 - 10, 360 + offset, textWidth("" + txt) + 20, 75);
-    text(txt, 300 - textWidth("" + txt) / 2, 426 + offset);
-    pop();
+    score.show();
 }
 function mousePressed() {
     knap.clicked();
@@ -335,7 +324,7 @@ function keyPressed() {
             setupTrash();
             hook.clearHook();
             offset = -250;
-            playState = playStateList.revsegameLoading;
+            playState = playStateList.menu;
         }
 }
 function checkHook() {
@@ -363,11 +352,59 @@ function setupTrash() {
         deadFisk.push(new DeadFisk(deadFiskImg[ran], random(width - 64), random(799, 10240), ran));
     }
 }
-function countPoints() {
-    var sum = 0;
-    hook.hooked.forEach(function (item) {
-        sum += item.points;
-    });
-    return sum;
+function animation() {
+    if (playState === playStateList.startLoading) {
+        image(start1Img[playState], 0, 0);
+        if (currentFrame === maxFrame1 - 1) {
+            playState = playStateList.menu;
+            currentFrame = 0;
+            return true;
+        }
+        currentFrame++;
+        return true;
+    }
+    if (playState === playStateList.menu) {
+        background(220);
+        image(start1Img[knap.bagground()], 0, 0);
+        knap.hover();
+        return true;
+    }
+    if (playState === playStateList.gameLoading) {
+        image(start1Img[playState], 0, 0);
+        if (currentFrame === maxFrame2) {
+            playState = playStateList.play;
+            currentFrame = 0;
+            return true;
+        }
+        currentFrame++;
+        return true;
+    }
+}
+function waterItemsTick() {
+    for (var i = 0; i < skrald.length; i++) {
+        skrald[i].tick();
+        skrald[i].show();
+        if (skrald[i].collect(hook)) {
+            hook.addHook(skrald[i]);
+            skrald.splice(i, 1);
+        }
+    }
+    for (var i = 0; i < fisk.length; i++) {
+        fisk[i].tick();
+        fisk[i].move();
+        fisk[i].show();
+        if (fisk[i].collect(hook)) {
+            hook.addHook(fisk[i]);
+            fisk.splice(i, 1);
+        }
+    }
+    for (var i = 0; i < deadFisk.length; i++) {
+        deadFisk[i].tick();
+        deadFisk[i].show();
+        if (deadFisk[i].collect(hook)) {
+            hook.addHook(deadFisk[i]);
+            deadFisk.splice(i, 1);
+        }
+    }
 }
 //# sourceMappingURL=build.js.map
