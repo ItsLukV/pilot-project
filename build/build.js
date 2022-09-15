@@ -175,8 +175,8 @@ function loadImages() {
     startImg.push(loadImage("sketch/assets/Start/start2.png"));
     startImg.push(loadImage("sketch/assets/Start/start0.gif"));
     startImg.push(loadImage("sketch/assets/Start/start3.gif"));
-    startImg.push(loadImage("sketch/assets/Start/start4.png"));
-    startImg.push(loadImage("sketch/assets/Start/start5.gif"));
+    startImg.push(loadImage("sketch/assets/Start/start5.png"));
+    startImg.push(loadImage("sketch/assets/Start/start4.gif"));
     skraldImg.push(loadImage("sketch/assets/Trash/oil barrel.png"));
     skraldImg.push(loadImage("sketch/assets/Trash/tire.png"));
     skraldImg.push(loadImage("sketch/assets/Trash/trashbag.png"));
@@ -203,6 +203,7 @@ function loadImages() {
     turtle.push(loadImage("sketch/assets/Fisk/Livefish/turtle animation.gif"));
     turtle.push(loadImage("sketch/assets/Fisk/Livefish/turtle animationflip.gif"));
     fiskImg.push(turtle);
+    pressSpace = loadImage("sketch/assets/restart.gif");
     fishermanImg = loadImage("sketch/assets/fisherman.png");
     krogImg = loadImage("sketch/assets/Hook.gif");
     backgroundImg = loadImage("sketch/assets/background.png");
@@ -260,6 +261,7 @@ var hook;
 var skrald = [];
 var fisk = [];
 var deadFisk = [];
+var pressSpace;
 var fishermanImg;
 var krogImg;
 var skraldImg = [];
@@ -308,6 +310,7 @@ function draw() {
     checkHook();
     image(backgroundImg, 0, 0 + offset);
     image(fishermanImg, 290, 450 + offset);
+    image(pressSpace, 321 - 250 / 2, 350 + offset, 250, 100);
     waterItemsTick();
     hook.tick();
     hook.show();
@@ -363,7 +366,7 @@ function setupTrash() {
 function animation() {
     if (playState === playStateList.startLoading) {
         image(startImg[playState], 0, 0);
-        if (currentFrame === maxFrame1 - 1) {
+        if (currentFrame === maxFrame1) {
             startImg[playState].setFrame(0);
             playState = playStateList.menu;
             currentFrame = 0;

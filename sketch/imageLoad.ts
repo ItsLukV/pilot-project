@@ -5,8 +5,8 @@ function loadImages() {
   startImg.push(loadImage("sketch/assets/Start/start2.png")); // non hover button
   startImg.push(loadImage("sketch/assets/Start/start0.gif")); // Hover button
   startImg.push(loadImage("sketch/assets/Start/start3.gif")); // Play Animation
-  startImg.push(loadImage("sketch/assets/Start/start4.png")); //
-  startImg.push(loadImage("sketch/assets/Start/start5.gif")); // restart Animation
+  startImg.push(loadImage("sketch/assets/Start/start5.png")); //
+  startImg.push(loadImage("sketch/assets/Start/start4.gif")); // restart Animation
 
   skraldImg.push(loadImage("sketch/assets/Trash/oil barrel.png"));
   skraldImg.push(loadImage("sketch/assets/Trash/tire.png"));
@@ -42,6 +42,7 @@ function loadImages() {
   );
   fiskImg.push(turtle);
 
+  pressSpace = loadImage("sketch/assets/restart.gif");
   fishermanImg = loadImage("sketch/assets/fisherman.png");
   krogImg = loadImage("sketch/assets/Hook.gif");
   backgroundImg = loadImage("sketch/assets/background.png");

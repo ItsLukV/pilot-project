@@ -9,6 +9,7 @@ let skrald: Skrald[] = [];
 let fisk: Fisk[] = [];
 let deadFisk: DeadFisk[] = [];
 
+let pressSpace: p5.Image;
 let fishermanImg: p5.Image;
 let krogImg: p5.Image;
 let skraldImg: p5.Image[] = [];
@@ -66,6 +67,7 @@ function draw() {
 
   image(fishermanImg, 290, 450 + offset);
 
+  image(pressSpace, 321 - 250 / 2, 350 + offset, 250, 100);
   waterItemsTick();
 
   hook.tick();
@@ -140,7 +142,7 @@ function setupTrash() {
 function animation(): boolean {
   if (playState === playStateList.startLoading) {
     image(startImg[playState], 0, 0);
-    if (currentFrame === maxFrame1 - 1) {
+    if (currentFrame === maxFrame1) {
       startImg[playState].setFrame(0);
 
       playState = playStateList.menu;
