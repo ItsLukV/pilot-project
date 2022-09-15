@@ -1,11 +1,12 @@
 function loadImages() {
   mySound = loadSound("sketch/assets/Music/bagground.mp3");
 
-  start1Img.push(loadImage("sketch/assets/Start/start1.png"));
-  start1Img.push(loadImage("sketch/assets/Start/start2.png"));
-  start1Img.push(loadImage("sketch/assets/Start/start0.gif"));
-  start1Img.push(loadImage("sketch/assets/Start/start3.gif"));
-  start1Img.push(loadImage("sketch/assets/Start/start4.gif"));
+  startImg.push(loadImage("sketch/assets/Start/start1.png")); // Start Animation
+  startImg.push(loadImage("sketch/assets/Start/start2.png")); // non hover button
+  startImg.push(loadImage("sketch/assets/Start/start0.gif")); // Hover button
+  startImg.push(loadImage("sketch/assets/Start/start3.gif")); // Play Animation
+  startImg.push(loadImage("sketch/assets/Start/start4.png")); //
+  startImg.push(loadImage("sketch/assets/Start/start5.gif")); // restart Animation
 
   skraldImg.push(loadImage("sketch/assets/Trash/oil barrel.png"));
   skraldImg.push(loadImage("sketch/assets/Trash/tire.png"));

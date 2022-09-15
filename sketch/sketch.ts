@@ -3,39 +3,48 @@ window.addEventListener("unload", function (event) {
   score.save();
 });
 let offset: number = -250;
+
+let hook: Krog;
+let skrald: Skrald[] = [];
+let fisk: Fisk[] = [];
+let deadFisk: DeadFisk[] = [];
+
 let fishermanImg: p5.Image;
 let krogImg: p5.Image;
-let hook: Krog;
 let skraldImg: p5.Image[] = [];
-let skrald: Skrald[] = [];
 let backgroundImg: p5.Image;
-let fisk: Fisk[] = [];
 let fiskImg: Array<p5.Image>[] = [];
 let deadFiskImg: p5.Image[] = [];
-let deadFisk: DeadFisk[] = [];
-let start1Img: p5.Image[] = [];
-//TODO fix frame
-let maxFrame1: number = Math.floor(7 * 60);
-let maxFrame2: number = 60;
-let maxFrame3: number = 60;
+let mySound: p5.SoundFile;
+
+// Animation
+let startImg: p5.Image[] = [];
+let maxFrame1: number = 7.6 * 60;
+let maxFrame2: number = 4.3 * 60;
+let maxFrame3: number = 4.3 * 60;
 let currentFrame: number = 0;
 
 let score: Score;
 
-let mySound: p5.SoundFile;
-const hookLevel: number = 400;
-const skraldAntal: number = 50;
-const fiskAntal: number = 30;
-const deadAntal: number = 30;
-const hitboxShow: boolean = true;
 enum playStateList {
   menu = 0,
   play = 1,
   startLoading = 2,
   gameLoading = 3,
+  tutoriale = 4,
+  restartLoading = 5,
 }
 let playState: playStateList = playStateList.startLoading;
-let knap: Knap;
+
+let playKnap: PlayKnap;
+let tutorialeKnap: TutorialeKnap;
+
+const hookLevel: number = 400;
+const skraldAntal: number = 50;
+const fiskAntal: number = 30;
+const deadAntal: number = 30;
+const hitboxShow: boolean = true;
+
 function preload() {
   loadImages();
 }
@@ -44,9 +53,9 @@ function setup() {
   setupTrash();
   score = new Score();
   score.load();
-  knap = new Knap(243, 294, 176, 84);
+  playKnap = new PlayKnap(243, 294, 176, 84);
+  tutorialeKnap = new TutorialeKnap(36, 526, 58, 60);
   hook = new Krog(krogImg, 640 / 2, hookLevel);
-  // noLoop();
 }
 
 function draw() {
@@ -70,7 +79,8 @@ function draw() {
 }
 
 function mousePressed() {
-  knap.clicked();
+  playKnap.clicked();
+  tutorialeKnap.hitbox();
 
   //TODO remove
   console.log("NON-offset", mouseX, mouseY);
@@ -85,8 +95,8 @@ function keyPressed() {
       fisk = [];
       setupTrash();
       hook.clearHook();
+      playState = playStateList.restartLoading;
       offset = -250;
-      playState = playStateList.menu;
     }
 }
 
@@ -129,8 +139,10 @@ function setupTrash() {
 
 function animation(): boolean {
   if (playState === playStateList.startLoading) {
-    image(start1Img[playState], 0, 0);
+    image(startImg[playState], 0, 0);
     if (currentFrame === maxFrame1 - 1) {
+      startImg[playState].setFrame(0);
+
       playState = playStateList.menu;
       currentFrame = 0;
       return true;
@@ -139,17 +151,38 @@ function animation(): boolean {
     return true;
   }
 
+  if (playState === playStateList.tutoriale) {
+    image(startImg[playState], 0, 0);
+    return true;
+  }
+
   if (playState === playStateList.menu) {
     background(220);
-    image(start1Img[knap.bagground()], 0, 0);
-    knap.hover();
+    image(startImg[playKnap.bagground()], 0, 0);
+    playKnap.hover();
+
     return true;
   }
 
   if (playState === playStateList.gameLoading) {
-    image(start1Img[playState], 0, 0);
+    image(startImg[playState], 0, 0);
+
     if (currentFrame === maxFrame2) {
+      startImg[playState].setFrame(0);
+
       playState = playStateList.play;
+      currentFrame = 0;
+      return true;
+    }
+    currentFrame++;
+    return true;
+  }
+  if (playState === playStateList.restartLoading) {
+    image(startImg[playState], 0, 0);
+    if (currentFrame === maxFrame3) {
+      startImg[playState].setFrame(0);
+
+      playState = playStateList.menu;
       currentFrame = 0;
 
       return true;

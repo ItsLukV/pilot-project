@@ -1,4 +1,4 @@
-class Knap {
+class PlayKnap {
   x: number;
   y: number;
   w: number;
@@ -27,8 +27,8 @@ class Knap {
     }
   }
 
-  //TODO make switch to animation
   clicked() {
+    if (playState != playStateList.menu) return;
     if (mouseX > this.x && mouseX < this.x + this.w) {
       if (mouseY > this.y && mouseY < this.y + this.h) {
         playState = playStateList.gameLoading;
