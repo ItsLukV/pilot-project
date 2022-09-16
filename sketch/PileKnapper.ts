@@ -1,4 +1,4 @@
-class OpenKnap {
+class TutorialeKnap {
   x: number;
   y: number;
   w: number;
@@ -10,18 +10,22 @@ class OpenKnap {
     this.h = h;
   }
 
-  hitbox() {
+  clicked(func: Function) {
+    if (playState != playStateList.tutoriale) return;
     if (mouseX > this.x && mouseX < this.x + this.w) {
       if (mouseY > this.y && mouseY < this.y + this.h) {
-        playState = playStateList.tutoriale;
+        func();
       }
     }
   }
-  hover() {
+
+  hover(): boolean {
     if (mouseX > this.x && mouseX < this.x + this.w) {
       if (mouseY > this.y && mouseY < this.y + this.h) {
-        image(startImg[4], 0, 0);
+        return true;
       }
+      return false;
     }
+    return false;
   }
 }

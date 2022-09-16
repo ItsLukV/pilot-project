@@ -3,12 +3,14 @@ window.addEventListener("unload", function (event) {
   score.save();
 });
 let offset: number = -250;
+let tutorialeScreen: boolean = false;
 
 let hook: Krog;
 let skrald: Skrald[] = [];
 let fisk: Fisk[] = [];
 let deadFisk: DeadFisk[] = [];
 
+let tutorialeImg: p5.Image[] = [];
 let pressSpace: p5.Image;
 let fishermanImg: p5.Image;
 let krogImg: p5.Image;
@@ -21,8 +23,8 @@ let mySound: p5.SoundFile;
 // Animation
 let startImg: p5.Image[] = [];
 let maxFrame1: number = 7.6 * 60;
-let maxFrame2: number = 4.3 * 60;
-let maxFrame3: number = 4.3 * 60;
+let maxFrame2: number = 2.2 * 60;
+let maxFrame3: number = 2.2 * 60;
 let currentFrame: number = 0;
 
 let score: Score;
@@ -38,28 +40,36 @@ enum playStateList {
 let playState: playStateList = playStateList.startLoading;
 
 let playKnap: PlayKnap;
-let tutorialeKnap: TutorialeKnap;
+let tutorialeKnap: OpenKnap;
+let tutorialeVenstre: TutorialeKnap;
+let tutorialeHøjre: TutorialeKnap;
+let tutorialeLuk: TutorialeKnap;
 
 const hookLevel: number = 400;
 const skraldAntal: number = 50;
 const fiskAntal: number = 30;
 const deadAntal: number = 30;
-const hitboxShow: boolean = true;
+const hitboxShow: boolean = false;
 
 function preload() {
-  loadImages();
+  loadSprites();
 }
 function setup() {
   createCanvas(640, 800);
   setupTrash();
   score = new Score();
   score.load();
+  tutorialeVenstre = new TutorialeKnap(69, 692, 64, 35);
+  tutorialeHøjre = new TutorialeKnap(524, 698, 63, 34);
+  tutorialeLuk = new TutorialeKnap(601, 0, 39, 46);
+
   playKnap = new PlayKnap(243, 294, 176, 84);
-  tutorialeKnap = new TutorialeKnap(36, 526, 58, 60);
+  tutorialeKnap = new OpenKnap(36, 526, 58, 60);
   hook = new Krog(krogImg, 640 / 2, hookLevel);
 }
 
 function draw() {
+  if (tutoriale()) return;
   if (animation()) return;
 
   checkHook();
@@ -83,6 +93,17 @@ function draw() {
 function mousePressed() {
   playKnap.clicked();
   tutorialeKnap.hitbox();
+
+  tutorialeVenstre.clicked(() => {
+    tutorialeScreen = false;
+  });
+  tutorialeHøjre.clicked(() => {
+    tutorialeScreen = true;
+  });
+  tutorialeLuk.clicked(() => {
+    playState = playStateList.menu;
+    tutorialeScreen = false;
+  });
 
   //TODO remove
   console.log("NON-offset", mouseX, mouseY);
@@ -143,6 +164,7 @@ function animation(): boolean {
   if (playState === playStateList.startLoading) {
     image(startImg[playState], 0, 0);
     if (currentFrame === maxFrame1) {
+      // @ts-ignore
       startImg[playState].setFrame(0);
 
       playState = playStateList.menu;
@@ -153,16 +175,11 @@ function animation(): boolean {
     return true;
   }
 
-  if (playState === playStateList.tutoriale) {
-    image(startImg[playState], 0, 0);
-    return true;
-  }
-
   if (playState === playStateList.menu) {
     background(220);
     image(startImg[playKnap.bagground()], 0, 0);
     playKnap.hover();
-
+    tutorialeKnap.hover();
     return true;
   }
 
@@ -170,6 +187,7 @@ function animation(): boolean {
     image(startImg[playState], 0, 0);
 
     if (currentFrame === maxFrame2) {
+      // @ts-ignore
       startImg[playState].setFrame(0);
 
       playState = playStateList.play;
@@ -182,6 +200,7 @@ function animation(): boolean {
   if (playState === playStateList.restartLoading) {
     image(startImg[playState], 0, 0);
     if (currentFrame === maxFrame3) {
+      // @ts-ignore
       startImg[playState].setFrame(0);
 
       playState = playStateList.menu;
@@ -219,5 +238,20 @@ function waterItemsTick() {
       hook.addHook(deadFisk[i]);
       deadFisk.splice(i, 1);
     }
+  }
+}
+
+function tutoriale(): boolean {
+  if (playState === playStateList.tutoriale) {
+    if (tutorialeScreen) {
+      if (tutorialeLuk.hover()) image(tutorialeImg[5], 0, 0);
+      else if (tutorialeVenstre.hover()) image(tutorialeImg[3], 0, 0);
+      else image(tutorialeImg[2], 0, 0);
+    } else {
+      if (tutorialeHøjre.hover()) image(tutorialeImg[1], 0, 0);
+      else if (tutorialeLuk.hover()) image(tutorialeImg[4], 0, 0);
+      else image(tutorialeImg[0], 0, 0);
+    }
+    return true;
   }
 }

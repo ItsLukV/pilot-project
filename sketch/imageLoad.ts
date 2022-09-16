@@ -1,5 +1,16 @@
-function loadImages() {
+function loadSprites(): void {
   mySound = loadSound("sketch/assets/Music/bagground.mp3");
+
+  tutorialeImg.push(loadImage("sketch/assets/tutoriale/reason.png"));
+  tutorialeImg.push(loadImage("sketch/assets/tutoriale/reason_next_hover.png"));
+  tutorialeImg.push(loadImage("sketch/assets/tutoriale/how_to.png"));
+  tutorialeImg.push(loadImage("sketch/assets/tutoriale/how_to_back_hover.png"));
+  tutorialeImg.push(
+    loadImage("sketch/assets/tutoriale/reason_cross_hover.png")
+  );
+  tutorialeImg.push(
+    loadImage("sketch/assets/tutoriale/how_to_cross_hover.png")
+  );
 
   startImg.push(loadImage("sketch/assets/Start/start1.png")); // Start Animation
   startImg.push(loadImage("sketch/assets/Start/start2.png")); // non hover button

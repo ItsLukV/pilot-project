@@ -123,6 +123,33 @@ var Krog = (function () {
     };
     return Krog;
 }());
+var TutorialeKnap = (function () {
+    function TutorialeKnap(x, y, w, h) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+    }
+    TutorialeKnap.prototype.clicked = function (func) {
+        if (playState != playStateList.tutoriale)
+            return;
+        if (mouseX > this.x && mouseX < this.x + this.w) {
+            if (mouseY > this.y && mouseY < this.y + this.h) {
+                func();
+            }
+        }
+    };
+    TutorialeKnap.prototype.hover = function () {
+        if (mouseX > this.x && mouseX < this.x + this.w) {
+            if (mouseY > this.y && mouseY < this.y + this.h) {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    };
+    return TutorialeKnap;
+}());
 var PlayKnap = (function () {
     function PlayKnap(x, y, w, h, img) {
         this.img = img;
@@ -169,8 +196,14 @@ var Skrald = (function (_super) {
     }
     return Skrald;
 }(WaterItems));
-function loadImages() {
+function loadSprites() {
     mySound = loadSound("sketch/assets/Music/bagground.mp3");
+    tutorialeImg.push(loadImage("sketch/assets/tutoriale/reason.png"));
+    tutorialeImg.push(loadImage("sketch/assets/tutoriale/reason_next_hover.png"));
+    tutorialeImg.push(loadImage("sketch/assets/tutoriale/how_to.png"));
+    tutorialeImg.push(loadImage("sketch/assets/tutoriale/how_to_back_hover.png"));
+    tutorialeImg.push(loadImage("sketch/assets/tutoriale/reason_cross_hover.png"));
+    tutorialeImg.push(loadImage("sketch/assets/tutoriale/how_to_cross_hover.png"));
     startImg.push(loadImage("sketch/assets/Start/start1.png"));
     startImg.push(loadImage("sketch/assets/Start/start2.png"));
     startImg.push(loadImage("sketch/assets/Start/start0.gif"));
@@ -257,10 +290,12 @@ window.addEventListener("unload", function (event) {
     score.save();
 });
 var offset = -250;
+var tutorialeScreen = false;
 var hook;
 var skrald = [];
 var fisk = [];
 var deadFisk = [];
+var tutorialeImg = [];
 var pressSpace;
 var fishermanImg;
 var krogImg;
@@ -271,8 +306,8 @@ var deadFiskImg = [];
 var mySound;
 var startImg = [];
 var maxFrame1 = 7.6 * 60;
-var maxFrame2 = 4.3 * 60;
-var maxFrame3 = 4.3 * 60;
+var maxFrame2 = 2.2 * 60;
+var maxFrame3 = 2.2 * 60;
 var currentFrame = 0;
 var score;
 var playStateList;
@@ -287,24 +322,32 @@ var playStateList;
 var playState = playStateList.startLoading;
 var playKnap;
 var tutorialeKnap;
+var tutorialeVenstre;
+var tutorialeHøjre;
+var tutorialeLuk;
 var hookLevel = 400;
 var skraldAntal = 50;
 var fiskAntal = 30;
 var deadAntal = 30;
-var hitboxShow = true;
+var hitboxShow = false;
 function preload() {
-    loadImages();
+    loadSprites();
 }
 function setup() {
     createCanvas(640, 800);
     setupTrash();
     score = new Score();
     score.load();
+    tutorialeVenstre = new TutorialeKnap(69, 692, 64, 35);
+    tutorialeHøjre = new TutorialeKnap(524, 698, 63, 34);
+    tutorialeLuk = new TutorialeKnap(601, 0, 39, 46);
     playKnap = new PlayKnap(243, 294, 176, 84);
-    tutorialeKnap = new TutorialeKnap(36, 526, 58, 60);
+    tutorialeKnap = new OpenKnap(36, 526, 58, 60);
     hook = new Krog(krogImg, 640 / 2, hookLevel);
 }
 function draw() {
+    if (tutoriale())
+        return;
     if (animation())
         return;
     checkHook();
@@ -323,6 +366,16 @@ function draw() {
 function mousePressed() {
     playKnap.clicked();
     tutorialeKnap.hitbox();
+    tutorialeVenstre.clicked(function () {
+        tutorialeScreen = false;
+    });
+    tutorialeHøjre.clicked(function () {
+        tutorialeScreen = true;
+    });
+    tutorialeLuk.clicked(function () {
+        playState = playStateList.menu;
+        tutorialeScreen = false;
+    });
     console.log("NON-offset", mouseX, mouseY);
     console.log("offset", mouseX, mouseY - offset);
 }
@@ -375,14 +428,11 @@ function animation() {
         currentFrame++;
         return true;
     }
-    if (playState === playStateList.tutoriale) {
-        image(startImg[playState], 0, 0);
-        return true;
-    }
     if (playState === playStateList.menu) {
         background(220);
         image(startImg[playKnap.bagground()], 0, 0);
         playKnap.hover();
+        tutorialeKnap.hover();
         return true;
     }
     if (playState === playStateList.gameLoading) {
@@ -435,21 +485,48 @@ function waterItemsTick() {
         }
     }
 }
-var TutorialeKnap = (function () {
-    function TutorialeKnap(x, y, w, h) {
+function tutoriale() {
+    if (playState === playStateList.tutoriale) {
+        if (tutorialeScreen) {
+            if (tutorialeLuk.hover())
+                image(tutorialeImg[5], 0, 0);
+            else if (tutorialeVenstre.hover())
+                image(tutorialeImg[3], 0, 0);
+            else
+                image(tutorialeImg[2], 0, 0);
+        }
+        else {
+            if (tutorialeHøjre.hover())
+                image(tutorialeImg[1], 0, 0);
+            else if (tutorialeLuk.hover())
+                image(tutorialeImg[4], 0, 0);
+            else
+                image(tutorialeImg[0], 0, 0);
+        }
+        return true;
+    }
+}
+var OpenKnap = (function () {
+    function OpenKnap(x, y, w, h) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
     }
-    TutorialeKnap.prototype.hitbox = function () {
-        rect(this.x, this.y, this.w, this.h);
+    OpenKnap.prototype.hitbox = function () {
         if (mouseX > this.x && mouseX < this.x + this.w) {
             if (mouseY > this.y && mouseY < this.y + this.h) {
                 playState = playStateList.tutoriale;
             }
         }
     };
-    return TutorialeKnap;
+    OpenKnap.prototype.hover = function () {
+        if (mouseX > this.x && mouseX < this.x + this.w) {
+            if (mouseY > this.y && mouseY < this.y + this.h) {
+                image(startImg[4], 0, 0);
+            }
+        }
+    };
+    return OpenKnap;
 }());
 //# sourceMappingURL=build.js.map
